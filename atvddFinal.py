@@ -176,24 +176,33 @@ def refinaSolucao(P1, P2):
     # guarda a solucao ex5
     melhorP1 = [voo[:] for voo in P1]
     melhorP2 = [voo[:] for voo in P2]
-
     melhorAtraso = calculaAtrasoTotal(melhorP1, melhorP2)
+    
+    maxRefinamentos = 30
+    for _ in range(maxRefinamentos):
+        encontrouMelhora = False
+        P1Atual = [voo[:] for voo in melhorP1]
+        P2Atual = [voo[:] for voo in melhorP2]
+        
+        # melhor Local troca p1xp2
+        for i in range(len(P1Atual)):
+            for j in range(len(P2Atual)):
+                novaP1 = [voo[:] for voo in P1Atual]
+                novaP2 = [voo[:] for voo in P2Atual]
+                novaP1[i], novaP2[j] = novaP2[j], novaP1[i]
+        
+                novaP1 = recalculaCronogramaPista(novaP1)
+                novaP2 = recalculaCronogramaPista(novaP2)
+                atrasoNovo = calculaAtrasoTotal(novaP1, novaP2)
+        
+                if atrasoNovo < melhorAtraso:
+                    melhorAtraso = atrasoNovo
+                    melhorP1 = [voo[:] for voo in novaP1]
+                    melhorP2 = [voo[:] for voo in novaP2]
+                    encontrouMelhora = True
 
-    # melhor Local troca p1xp2
-    for i in range(len(P1)):
-        for j in range(len(P2)):
-            novaP1 = [voo[:] for voo in P1]
-            novaP2 = [voo[:] for voo in P2]
-            novaP1[i], novaP2[j] = novaP2[j], novaP1[i]
-    
-            novaP1 = recalculaCronogramaPista(novaP1)
-            novaP2 = recalculaCronogramaPista(novaP2)
-            atrasoNovo = calculaAtrasoTotal(novaP1, novaP2)
-    
-            if atrasoNovo < melhorAtraso:
-                melhorAtraso = atrasoNovo
-                melhorP1 = [voo[:] for voo in novaP1]
-                melhorP2 = [voo[:] for voo in novaP2]
+        if encontrouMelhora == False:
+            break
 
     return melhorP1, melhorP2
 
