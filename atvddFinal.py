@@ -200,3 +200,76 @@ for voo in P2:
     print(voo)
 
 print("\nAtraso total:", calculaAtrasoTotal(P1, P2))
+
+# exercicio 6
+def buscaVoo(idVoo):
+    for voo in PFG:
+        if voo[0] == idVoo:
+            return voo
+
+
+# recalcula os horarios e atrasos de uma pista
+def recalculaCronogramaPista(pista):
+    novaPista = []
+    horarioLiberado = "06:00"
+
+    for voo in pista:
+        idVoo = voo[0]
+
+        dadosVoo = buscaVoo(idVoo)
+
+        horario = dadosVoo[1]
+        intervalo = dadosVoo[2]
+
+        if horaParaMinutos(horario) > horaParaMinutos(horarioLiberado):
+            horaReal = horario
+        else:
+            horaReal = horarioLiberado
+
+        atraso = calculaAtraso(horario, horaReal)
+
+        novaPista.append([idVoo, horaReal, atraso, intervalo])
+
+        horarioLiberado = calculaLiberacao(horaReal, intervalo)
+
+    return novaPista
+
+
+# guarda a solucao ex5
+melhorP1 = [voo[:] for voo in P1]
+melhorP2 = [voo[:] for voo in P2]
+melhorAtraso = calculaAtrasoTotal(melhorP1, melhorP2)
+
+
+for i in range(10):
+    print(i)
+    # melhor Local troca p1xp2
+    for i in range(len(P1)):
+        for j in range(len(P2)):
+    
+            novaP1 = [voo[:] for voo in P1]
+            novaP2 = [voo[:] for voo in P2]
+            novaP1[i], novaP2[j] = novaP2[j], novaP1[i]
+    
+            novaP1 = recalculaCronogramaPista(novaP1)
+            novaP2 = recalculaCronogramaPista(novaP2)
+            atrasoNovo = calculaAtrasoTotal(novaP1, novaP2)
+    
+            if atrasoNovo < melhorAtraso:
+                melhorAtraso = atrasoNovo
+                melhorP1 = [voo[:] for voo in novaP1]
+                melhorP2 = [voo[:] for voo in novaP2]
+    
+    P1 = melhorP1
+    P2 = melhorP2
+
+
+print("\nPista 1 depois do refinamento")
+for voo in P1:
+    print(voo)
+
+print("\nPista 2 depois do refinamento")
+for voo in P2:
+    print(voo)
+
+print("\nAtraso depois do refinamento:", calculaAtrasoTotal(P1, P2))
