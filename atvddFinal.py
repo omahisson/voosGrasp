@@ -40,13 +40,11 @@ def horaParaMinutos(hora):
     totalMinutos = horas * 60 + minutos
     return totalMinutos
 
-
 def minutosParaHora(totalMinutos):
     horas = totalMinutos // 60
     minutos = totalMinutos % 60
     hora = f"{horas:02d}:{minutos:02d}"
     return hora
-
 
 # atraso do voo
 def calculaAtraso(horaPrevista, horaReal):
@@ -54,7 +52,6 @@ def calculaAtraso(horaPrevista, horaReal):
     real = horaParaMinutos(horaReal)
     atraso = real - prevista
     return atraso
-
 
 # quando a pista vai ta liberada
 def calculaLiberacao(horaReal, intervalo):
@@ -74,139 +71,83 @@ def calculaAtrasoTotal(P1, P2):
 # exercicio 3
 import random
 
-P1 = []
-P2 = []
-
-liberadoP1 = "06:00"
-liberadoP2 = "06:00"
-
 # uso da pista
 PFG.sort(key=lambda x: x[1])
 
-# escolhe pista
-for voo in PFG:
-    idVoo = voo[0]
-    horario = voo[1]
-    intervalo = voo[2]
-    pista = random.randint(1, 2)
-
-    if pista == 1:
-        if horaParaMinutos(horario) > horaParaMinutos(liberadoP1):
-            horaReal = horario
-        else:
-            horaReal = liberadoP1
-
-        atraso = calculaAtraso(horario, horaReal)
-        P1.append([idVoo, horaReal, atraso, intervalo])
-        liberadoP1 = calculaLiberacao(horaReal, intervalo)
-
-    # pista 2
-    else:
-
-        if horaParaMinutos(horario) > horaParaMinutos(liberadoP2):
-            horaReal = horario
-        else:
-            horaReal = liberadoP2
-
-        atraso = calculaAtraso(horario, horaReal)
-        P2.append([idVoo, horaReal, atraso, intervalo])
-        liberadoP2 = calculaLiberacao(horaReal, intervalo)
-
-print("\nPista 1")
-for voo in P1:
-    print(voo)
-
-print("\nPista 2")
-for voo in P2:
-    print(voo)
-
-print("\nAtraso total:", calculaAtrasoTotal(P1, P2))
+# exercicio 7
 
 # exercicio 5
-P1 = []
-P2 = []
+def constroiSolucao():
+    P1 = []
+    P2 = []
 
-liberadoP1 = "06:00"
-liberadoP2 = "06:00"
+    liberadoP1 = "06:00"
+    liberadoP2 = "06:00"
 
-# voosParaEscolherPista
-voosRestantes = PFG[:]
-while len(voosRestantes) > 0:
+    # voosParaEscolherPista
+    voosRestantes = PFG[:]
+    while len(voosRestantes) > 0:
 
-    # exercicio 4
-    listaCandidatos = []
+        # exercicio 4
+        listaCandidatos = []
 
-    for voo in voosRestantes:
-        idVoo = voo[0]
-        horario = voo[1]
-        intervalo = voo[2]
+        for voo in voosRestantes:
+            idVoo = voo[0]
+            horario = voo[1]
+            intervalo = voo[2]
 
-        if horaParaMinutos(horario) > horaParaMinutos(liberadoP1):
-            horaRealP1 = horario
+            if horaParaMinutos(horario) > horaParaMinutos(liberadoP1):
+                horaRealP1 = horario
+            else:
+                horaRealP1 = liberadoP1
+
+            atrasoP1 = calculaAtraso(horario, horaRealP1)
+            listaCandidatos.append([idVoo, 1, horaRealP1, atrasoP1, intervalo, horario])
+
+            if horaParaMinutos(horario) > horaParaMinutos(liberadoP2):
+                horaRealP2 = horario
+            else:
+                horaRealP2 = liberadoP2
+
+            atrasoP2 = calculaAtraso(horario, horaRealP2)
+            listaCandidatos.append([idVoo, 2, horaRealP2, atrasoP2, intervalo, horario])
+
+        # atraso
+        listaCandidatos.sort(key=lambda x: x[3])
+
+        # LRC2
+        tamListaMelhores = 2
+        listaMelhoresCandidatos = listaCandidatos[0:tamListaMelhores]
+        posicao = random.randint(0, len(listaMelhoresCandidatos) - 1)
+        candidatoEscolhido = listaMelhoresCandidatos[posicao]
+
+        # dadosDele
+        idEscolhido = candidatoEscolhido[0]
+        pistaEscolhida = candidatoEscolhido[1]
+        horaReal = candidatoEscolhido[2]
+        atraso = candidatoEscolhido[3]
+        intervalo = candidatoEscolhido[4]
+
+        if pistaEscolhida == 1:
+            P1.append([idEscolhido, horaReal, atraso, intervalo])
+            liberadoP1 = calculaLiberacao(horaReal, intervalo)
         else:
-            horaRealP1 = liberadoP1
-        atrasoP1 = calculaAtraso(horario, horaRealP1)
-        listaCandidatos.append(
-            [idVoo, 1, horaRealP1, atrasoP1, intervalo, horario]
-        )
+            P2.append([idEscolhido, horaReal, atraso, intervalo])
+            liberadoP2 = calculaLiberacao(horaReal,intervalo)
 
-        if horaParaMinutos(horario) > horaParaMinutos(liberadoP2):
-            horaRealP2 = horario
-        else:
-            horaRealP2 = liberadoP2
-        atrasoP2 = calculaAtraso(horario, horaRealP2)
-        listaCandidatos.append(
-            [idVoo, 2, horaRealP2, atrasoP2, intervalo, horario]
-        )
+        # tiramos o voo escalonado
+        for voo in voosRestantes:
+            if voo[0] == idEscolhido:
+                voosRestantes.remove(voo)
+                break
 
-    # atraso
-    listaCandidatos.sort(key=lambda x: x[3])
-
-
-    # LRC2
-    tamListaMelhores = 2
-    listaMelhoresCandidatos = listaCandidatos[0:tamListaMelhores]
-    posicao = random.randint(0, len(listaMelhoresCandidatos) - 1)
-    candidatoEscolhido = listaMelhoresCandidatos[posicao]
-
-    # dadosDele
-    idEscolhido = candidatoEscolhido[0]
-    pistaEscolhida = candidatoEscolhido[1]
-    horaReal = candidatoEscolhido[2]
-    atraso = candidatoEscolhido[3]
-    intervalo = candidatoEscolhido[4]
-
-    if pistaEscolhida == 1:
-        P1.append([idEscolhido, horaReal, atraso, intervalo])
-        liberadoP1 = calculaLiberacao(horaReal, intervalo)
-    else:
-        P2.append([idEscolhido, horaReal, atraso, intervalo])
-        liberadoP2 = calculaLiberacao(horaReal, intervalo)
-
-
-    # tiramos o voo escalonado
-    for voo in voosRestantes:
-        if voo[0] == idEscolhido:
-            voosRestantes.remove(voo)
-            break
-
-
-print("\nPista 1")
-for voo in P1:
-    print(voo)
-
-print("\nPista 2")
-for voo in P2:
-    print(voo)
-
-print("\nAtraso total:", calculaAtrasoTotal(P1, P2))
+    return P1, P2
 
 # exercicio 6
 def buscaVoo(idVoo):
     for voo in PFG:
         if voo[0] == idVoo:
             return voo
-
 
 # recalcula os horarios e atrasos de uma pista
 def recalculaCronogramaPista(pista):
@@ -215,9 +156,7 @@ def recalculaCronogramaPista(pista):
 
     for voo in pista:
         idVoo = voo[0]
-
         dadosVoo = buscaVoo(idVoo)
-
         horario = dadosVoo[1]
         intervalo = dadosVoo[2]
 
@@ -227,26 +166,22 @@ def recalculaCronogramaPista(pista):
             horaReal = horarioLiberado
 
         atraso = calculaAtraso(horario, horaReal)
-
         novaPista.append([idVoo, horaReal, atraso, intervalo])
-
         horarioLiberado = calculaLiberacao(horaReal, intervalo)
-
     return novaPista
 
+# melhor local
+def refinaSolucao(P1, P2):
 
-# guarda a solucao ex5
-melhorP1 = [voo[:] for voo in P1]
-melhorP2 = [voo[:] for voo in P2]
-melhorAtraso = calculaAtrasoTotal(melhorP1, melhorP2)
+    # guarda a solucao ex5
+    melhorP1 = [voo[:] for voo in P1]
+    melhorP2 = [voo[:] for voo in P2]
 
+    melhorAtraso = calculaAtrasoTotal(melhorP1, melhorP2)
 
-for i in range(10):
-    print(i)
     # melhor Local troca p1xp2
     for i in range(len(P1)):
         for j in range(len(P2)):
-    
             novaP1 = [voo[:] for voo in P1]
             novaP2 = [voo[:] for voo in P2]
             novaP1[i], novaP2[j] = novaP2[j], novaP1[i]
@@ -259,17 +194,35 @@ for i in range(10):
                 melhorAtraso = atrasoNovo
                 melhorP1 = [voo[:] for voo in novaP1]
                 melhorP2 = [voo[:] for voo in novaP2]
-    
-    P1 = melhorP1
-    P2 = melhorP2
 
+    return melhorP1, melhorP2
 
-print("\nPista 1 depois do refinamento")
-for voo in P1:
+# grasp completo
+melhorP1Global = []
+melhorP2Global = []
+melhorAtrasoGlobal = 999999999
+
+tentativas = 10
+for tentativa in range(tentativas):
+    print(tentativa)
+    # ex5 fase construtiva
+    P1, P2 = constroiSolucao()
+
+    # ex6 refinamento
+    P1, P2 = refinaSolucao(P1, P2)
+    atrasoAtual = calculaAtrasoTotal(P1, P2)
+
+    if atrasoAtual < melhorAtrasoGlobal:
+        melhorAtrasoGlobal = atrasoAtual
+        melhorP1Global = [voo[:] for voo in P1]
+        melhorP2Global = [voo[:] for voo in P2]
+
+print("\nMelhor Pista 1")
+for voo in melhorP1Global:
     print(voo)
 
-print("\nPista 2 depois do refinamento")
-for voo in P2:
+print("\nMelhor Pista 2")
+for voo in melhorP2Global:
     print(voo)
 
-print("\nAtraso depois do refinamento:", calculaAtrasoTotal(P1, P2))
+print("\nMelhor atraso encontrado:", melhorAtrasoGlobal)
